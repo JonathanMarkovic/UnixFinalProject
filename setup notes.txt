@@ -1,6 +1,8 @@
 https://gist.github.com/mjkstra/96ce7a5689d753e7a6bdd92cdc169bae#preliminary-steps
 used this guide for setup
 
+can use archinstall instead for a simpler stup
+
 
 process for installing Arch completely 
 
