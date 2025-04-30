@@ -12,6 +12,7 @@ read -n 1 -s
 mainMenu() {
 displayIntroScreen
 displayCategories
+mainMenuOption
 }
 
 displayCategories() {
