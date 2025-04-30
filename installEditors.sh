@@ -11,8 +11,8 @@ PS3="Choose an editor to install: "
 editorChoices=("NeoVim" "Visual Studio Code" "Nano" "Sublime Text" "Atom" "Information About The Text Editors" "Back")
 
 while true; do
-select editor in "${editors[@]}"; do
-case $editorChoices in
+select editor in "${editorChoices[@]}"; do
+case $editor in
 "NeoVim")
 sudo pacman -S neovim
 ;;
