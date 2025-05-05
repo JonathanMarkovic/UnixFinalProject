@@ -12,7 +12,7 @@ PS3="Choose a browser to install: "
 browsersChoices=("Firefox" "Chromium" "Brave" "Opera" "Onion Browser" "Information About The Browsers" "Back")
 
 while true; do
-select browser in "${browsersChoice[@]}"; do
+select browser in "${browsersChoices[@]}"; do
 case $browser in
 "Firefox")
 yay -S --noconfirm firefox
