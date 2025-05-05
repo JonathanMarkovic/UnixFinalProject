@@ -10,12 +10,12 @@ makepkg -si
 
 cd ..
 pwd
-chmod +x ./installBrowsers.sh
-chmod +x ./installDesktop.sh
-chmod +x ./isntallEditors.sh
-chmod +x ./installFileManagers.sh
-chmod +x ./installTerminals.sh
-chmod +x ./installUtilities.sh
-chmod +x ./UnixProject.sh
+chmod +x ./Scripts/installBrowsers.sh
+chmod +x ./Scripts/installDesktop.sh
+chmod +x ./Scripts/installEditors.sh
+chmod +x ./Scripts/installFileManagers.sh
+chmod +x ./Scripts/installTerminals.sh
+chmod +x ./Scripts/installUtilities.sh
+chmod +x ./Scripts/UnixProject.sh
 
-bash ./UnixProject.sh
+bash ./Scripts/UnixProject.sh
