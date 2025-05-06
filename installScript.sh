@@ -81,7 +81,7 @@ echo "Set your root password"
 passwd
 
 # Create the user
-useradd -m -G wheel -s /bin/bash $NEWUSER
+useradd -m -G wheel -s /bin/bash "$NEWUSER"
 echo "Set password for $NEWUSER:"
 passwd $NEWUSER
 echo "$NEWUSER ALL=(ALL) ALL" >> /etc/sudoers.d/$NEWUSER
