@@ -11,7 +11,6 @@ read -n 1 -s
 
 mainMenu() {
 displayIntroScreen
-displayCategories
 mainMenuOption
 }
 
@@ -29,6 +28,7 @@ echo -e "\033[0;31m\033[1m7. Quit \033[0;31m\033[0m"
 
 mainMenuOption() {
     while true; do
+	displayCategories
         echo
         read -p "Please select a choice from 1-7: " choice
         case $choice in

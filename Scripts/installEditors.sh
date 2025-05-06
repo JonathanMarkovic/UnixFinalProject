@@ -33,7 +33,8 @@ echo -e "\eText Editor Information:"
 echo
 ;;
 "Back")
-bash UnixProject.sh
+#bash UnixProject.sh
+exit 0
 break
 ;;
 *)
