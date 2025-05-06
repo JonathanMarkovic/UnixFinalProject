@@ -37,7 +37,6 @@ break
 ;;
 "Information About The Browsers")
 echo -e "\eBrowser Information:"
-#!/bin/bash
 
 echo -e "1. Firefox\n"
 echo -e "Firefox is an open-source browser from Mozilla that puts privacy and customization front and center. It blocks trackers and ads by default, and it’s easy to use with tons of extensions. Firefox makes a good choice if you like having customizing your browsing experience and care about privacy.\n"
