@@ -59,45 +59,41 @@ if [[ -z "$NEWUSER" ]]; then
   exit 1
 fi
 
-arch-chroot /mnt /bin/bash <<EOF
+arch-chroot /mnt /bin/bash <<'EOF'
+# Inside the chroot environment
 
-#Setting local time to est
+# Set local time and hardware clock
 ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc
 
-#echo -e "Uncomment the line for your locale"
-#sleep 5
-#nano /etc/locale.gen
-#locale-gen
-#echo "KEYMAP=us" > /etc/vconsole.conf
-
-# Locale and keymap
+# Locale and keymap settings
 sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=us" > /etc/vconsole.conf
 
-#Setting hostname
+# Set the system hostname
 echo "Arch" > /etc/hostname
-echo -e "127.0.0.0 localhost\n::1 localhost\n127.0.1.1 Arch" > /etc/hosts
+echo -e "127.0.0.1 localhost\n::1 localhost\n127.0.1.1 Arch" > /etc/hosts
 
-#root and User creation
+# Set root password
 echo "Set your root password"
 passwd
 
-# Create user
+# Create the user
 useradd -m -G wheel -s /bin/bash $NEWUSER
 echo "Set password for $NEWUSER:"
 passwd $NEWUSER
 echo "$NEWUSER ALL=(ALL) ALL" >> /etc/sudoers.d/$NEWUSER
 chmod 0440 /etc/sudoers.d/$NEWUSER
 
-#Setting up Grub
+# Install and configure GRUB
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB  
 grub-mkconfig -o /boot/grub/grub.cfg
 
-#prepping for reboot
+# Enable NetworkManager
 systemctl enable NetworkManager
+
 EOF
 bash install.sh
 
