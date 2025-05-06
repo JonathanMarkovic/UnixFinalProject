@@ -100,6 +100,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 systemctl enable NetworkManager
 
 EOF
+bash install.sh
 
 #Reboot
 umount -R /mnt
