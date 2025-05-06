@@ -98,7 +98,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 #prepping for reboot
 systemctl enable NetworkManager
-
 EOF
 bash install.sh
 
