@@ -1,3 +1,4 @@
+#!/bin/bash
 #This must be used in EFI mode
 # Ensure script runs in EFI mode
 if [ ! -d /sys/firmware/efi ]; then
@@ -7,7 +8,6 @@ fi
 
 #Loads the keymap for the file
 loadkeys us
-
 timedatectl set-ntp true
 
 # Verify disk presence before partitioning
@@ -59,9 +59,9 @@ if [[ -z "$NEWUSER" ]]; then
   exit 1
 fi
 
-arch-chroot /mnt /bin/bash <<EOF
-# Inside the chroot environment
-
+# Create the chroot script
+cat > /mnt/setup.sh << EOL
+#!/bin/bash
 # Set local time and hardware clock
 ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc
@@ -81,12 +81,11 @@ echo "Set your root password"
 passwd
 
 # Create the user
-NEWUSER="$NEWUSER"
-useradd -m -G wheel -s /bin/bash "\$NEWUSER"
-echo "Set password for $NEWUSER:"
-passwd $NEWUSER
-echo "$NEWUSER ALL=(ALL) ALL" >> /etc/sudoers.d/$NEWUSER
-chmod 0440 /etc/sudoers.d/$NEWUSER
+useradd -m -G wheel -s /bin/bash "${NEWUSER}"
+echo "Set password for ${NEWUSER}:"
+passwd ${NEWUSER}
+echo "${NEWUSER} ALL=(ALL) ALL" >> /etc/sudoers.d/${NEWUSER}
+chmod 0440 /etc/sudoers.d/${NEWUSER}
 
 # Install and configure GRUB
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB  
@@ -94,9 +93,21 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Enable NetworkManager
 systemctl enable NetworkManager
-EOF
-bash install.sh
+EOL
+
+# Make setup script executable
+chmod +x /mnt/setup.sh
+
+# Run the setup script in chroot
+arch-chroot /mnt /setup.sh
+
+# Cleanup
+rm /mnt/setup.sh
 
 #Reboot
 umount -R /mnt
-reboot
+echo "Installation complete! You can now reboot."
+read -p "Reboot now? (y/n): " REBOOT
+if [[ "$REBOOT" == "y" ]]; then
+  reboot
+fi
