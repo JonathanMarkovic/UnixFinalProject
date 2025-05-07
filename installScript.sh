@@ -29,8 +29,30 @@ fi
 #Installation with the script is done assuming 2 partitions on the same disk
 cfdisk "$DISK"
 
-mkfs.fat -F 32 "${DISK}1"
-mkfs.btrfs -F "${DISK}2"
+# Display partition information for verification
+echo "Current partition information:"
+fdisk -l "$DISK"
+lsblk -f
+
+# Format the partitions with confirmation
+echo "Ready to format partitions:"
+echo "  ${DISK}1 will be formatted as FAT32 (EFI partition)"
+echo "  ${DISK}2 will be formatted as BTRFS (Root partition)"
+read -p "Proceed with formatting? (y/n): " FORMAT_CONFIRM
+if [[ "$FORMAT_CONFIRM" != "y" ]]; then
+  echo "Formatting canceled."
+  exit 0
+fi
+
+echo "Formatting ${DISK}1 as FAT32..."
+mkfs.fat -F32 "${DISK}1" || { echo "Failed to format ${DISK}1"; exit 1; }
+
+echo "Formatting ${DISK}2 as BTRFS..."
+mkfs.btrfs -f "${DISK}2" || { echo "Failed to format ${DISK}2"; exit 1; }
+
+# Verify the formatted filesystem
+echo "Verifying formatted filesystems:"
+lsblk -f
 
 # Make sure /mnt is not already mounted
 if mountpoint -q /mnt; then
