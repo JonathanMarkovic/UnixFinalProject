@@ -44,8 +44,8 @@ umount /mnt
 mount -o subvol=@ "${DISK}2" /mnt
 mkdir -p /mnt/home
 mount -o subvol=@home "${DISK}2" /mnt/home
-mkdir -p /mnt/efi
-mount "${DISK}1" /mnt/efi
+mkdir -p /mnt/boot/efi
+mount "${DISK}1" /mnt/boot/efi
 
 #Installing other packages
 pacstrap -K /mnt base base-devel linux linux-firmware git btrfs-progs nano networkmanager grub efibootmgr
@@ -59,7 +59,7 @@ if [[ -z "$NEWUSER" ]]; then
   exit 1
 fi
 
-arch-chroot /mnt /bin/bash <<'EOF'
+arch-chroot /mnt /bin/bash <<EOF
 # Inside the chroot environment
 
 # Set local time and hardware clock
@@ -81,7 +81,8 @@ echo "Set your root password"
 passwd
 
 # Create the user
-useradd -m -G wheel -s /bin/bash "$NEWUSER"
+NEWUSER="$NEWUSER"
+useradd -m -G wheel -s /bin/bash "\$NEWUSER"
 echo "Set password for $NEWUSER:"
 passwd $NEWUSER
 echo "$NEWUSER ALL=(ALL) ALL" >> /etc/sudoers.d/$NEWUSER
@@ -93,7 +94,6 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 # Enable NetworkManager
 systemctl enable NetworkManager
-
 EOF
 bash install.sh
 
