@@ -29,10 +29,38 @@ fi
 #Installation with the script is done assuming 2 partitions on the same disk
 cfdisk "$DISK"
 
+# Check if any partitions are already mounted and unmount them
+check_and_unmount() {
+  local device=$1
+  if grep -q "$device" /proc/mounts; then
+    echo "$device is currently mounted. Attempting to unmount..."
+    mountpoints=$(grep "$device" /proc/mounts | awk '{print $2}')
+    for mp in $mountpoints; do
+      echo "Unmounting $device from $mp..."
+      umount -f "$mp" || { echo "Failed to unmount $device from $mp"; return 1; }
+    done
+    echo "Successfully unmounted $device"
+  else
+    echo "$device is not mounted"
+  fi
+  return 0
+}
+
 # Display partition information for verification
 echo "Current partition information:"
 fdisk -l "$DISK"
 lsblk -f
+
+# Unmount all partitions that will be formatted
+echo "Checking if partitions are mounted..."
+check_and_unmount "${DISK}1" || { echo "Failed to unmount ${DISK}1. Please unmount manually and try again."; exit 1; }
+check_and_unmount "${DISK}2" || { echo "Failed to unmount ${DISK}2. Please unmount manually and try again."; exit 1; }
+
+# Additional check for /mnt
+if mountpoint -q /mnt; then
+  echo "Unmounting /mnt..."
+  umount -R /mnt || { echo "Failed to unmount /mnt. Please unmount manually and try again."; exit 1; }
+fi
 
 # Format the partitions with confirmation
 echo "Ready to format partitions:"
