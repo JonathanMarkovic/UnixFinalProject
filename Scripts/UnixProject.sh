@@ -50,14 +50,14 @@ displayCategories() {
     echo -e "\033[38;2;173;216;230m4. Terminal Emulators  \033[0m"
     echo -e "\033[38;2;173;216;230m5. Desktop Environment    \033[0m"
     echo -e "\033[38;2;173;216;230m6. System Utilities    \033[0m"
-    echo -e "\033[38;2;173;216;230m7. Quit \033[0m"
-}
+    echo -e "\033[38;2;173;216;230m7. Task Manager    \033[0m" 
+    echo -e "\033[38;2;173;216;230m8. Quit \033[0m"  
 
 mainMenuOption() {
     while true; do
-	displayCategories
+        displayCategories
         echo
-        read -p "Please select a choice from 1-7: " choice
+        read -p "Please select a choice from 1-8: " choice  
         case $choice in
         1)
             loadingAnimation
@@ -84,13 +84,17 @@ mainMenuOption() {
             bash installUtilities.sh
             ;;
         7)
+            loadingAnimation
+            bash autoTask.sh 
+            ;;
+        8)
             echo -e "\033[1mThank you for using our Arch Made Easy program!\033[0m"
             sleep 2
             clear
             exit
             ;;
         *)
-            echo -e "\033[0;31m\033[1mInvalid choice. Please try again.\033[0;31m\033[0m"
+            echo -e "\033[0;31m\033[1mInvalid choice. Please try again.\033[ 0;31m\033[0m"
             sleep 1
             ;;
         esac
@@ -103,4 +107,3 @@ loadingAnimation() {
 }
 
 mainMenu
-
