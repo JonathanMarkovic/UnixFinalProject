@@ -78,14 +78,14 @@ Our script automates these tedious steps to remove complexity from the Arch expe
 1. run: pacman-key --init
 2. run: pacman-key --populate
 3. run: pacman -Sy git
-4. clone Repository: git clone https:github.com/JonathanMarkovic/UnixFinalProject
+4. clone Repository: git clone https://github.com/JonathanMarkovic/UnixFinalProject
 5. run: ./installScript.sh
 6. In partition UI create an EFI parition of at least 512M(mb)
 7. In partition UI create a Linux File System for the rest of your disk
 8. In partition UI choose write option then quit
 9. reboot after setup
 
-10. Clone repository again: git clone https:github.com/JonathanMarkovic/UnixFinalProject
+10. Clone repository again: git clone https://github.com/JonathanMarkovic/UnixFinalProject
 11. run: cd UnixFinalProject
 12. run: install.sh
 13. Choose preffered apps and enjoy
