@@ -21,5 +21,6 @@ chmod +x ./installFileManagers.sh
 chmod +x ./Scripts/installTerminals.sh
 chmod +x ./Scripts/installUtilities.sh
 chmod +x ./Scripts/UnixProject.sh
+chnod +x ./Scripts/autoTask.sh
 
 bash ./UnixProject.sh
