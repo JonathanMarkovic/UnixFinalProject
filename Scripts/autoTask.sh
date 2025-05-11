@@ -2,14 +2,14 @@
 
 function checkForYay() {
     if ! command -v yay &> /dev/null; then
-        echo "We ask that you please install Yay in order to continue."
+        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
         exit 1
     fi
 }
 
 function setUpdateFrequency() {
     if [ ! -f "$HOME/.update_frequency" ]; then
-        echo "Please select how often you want to be prompted for updates:"
+        echo -e "\033[38;2;173;216;230mPlease select how often you want to be prompted for updates:\033[0m"
         PS3="Choose an option: "
         options=("Daily" "Weekly" "Never")
         select opt in "${options[@]}"; do
@@ -26,7 +26,7 @@ function setUpdateFrequency() {
                     echo "never" > "$HOME/.update_frequency"
                     break
                     ;;
-                *) echo "Invalid option. Please try again." ;;
+                *) echo -e "\033[0;31mInvalid option. Please try again.\033[0m" ;;
             esac
         done
     fi
@@ -38,7 +38,7 @@ function promptForUpdate() {
     local CURRENT_TIME=$(date +%s)
 
     if [ ! -f "$LAST_PROMPT_FILE" ]; then
-        return 0  # Prompt if the file doesn't exist
+        return 0
     fi
 
     local LAST_PROMPT_TIME=$(cat "$LAST_PROMPT_FILE")
@@ -60,12 +60,13 @@ function promptForUpdate() {
     esac
 
     return 1 
+}
 
 function createSystemdService() {
     local SERVICE_FILE="/etc/systemd/system/update-check.service"
     
     if [ ! -f "$SERVICE_FILE" ]; then
-        echo "Creating systemd service for update check..."
+        echo -e "\033[38;2;173;216;230mCreating systemd service for update check...\033[0m"
         sudo bash -c "cat > $SERVICE_FILE" <<EOL
 [Unit]
 Description=Check for system updates
@@ -78,9 +79,9 @@ Type=simple
 WantedBy=multi-user.target
 EOL
         sudo systemctl enable update-check.service
-        echo "Systemd service created and enabled."
+        echo -e "\033[38;2;173;216;230mSystemd service created and enabled.\033[0m"
     else
-        echo "Systemd service already exists."
+        echo -e "\033[38;2;173;216;230mSystemd service already exists.\033[0m"
     fi
 }
 
@@ -92,16 +93,18 @@ createSystemdService
 
 if promptForUpdate; then
     if [ "$(checkupdates | wc -l)" -gt 0 ]; then
-        echo "Updates are available. Do you want to proceed with the update? (y/n)"
+        echo -e "\033[38;2;173;216;230mUpdates are available. Do you want to proceed with the update? (y/n)\033[0m"
         read -r response
         if [[ "$response" == "y" ]]; then
             sudo pacman -Syu
-            echo "Updates completed."
+            echo -e "\033[38;2;173;216;230mUpdates completed.\033[0m"
         else
-            echo "Update canceled."
+            echo -e "\033[38;2;173;216;230mUpdate canceled.\033[0m"
         fi
     else
-        echo "No updates available."
+        echo -e "\033[38;2;173;216;230mNo updates available.\033[0m"
     fi
     echo "$(date +%s)" > "$HOME/.last_update_prompt"
 fi
+
+bash UnixProject.sh
