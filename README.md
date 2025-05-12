@@ -27,7 +27,7 @@ We will use a virtual machine to demonstrate the project. Starting from a fresh 
 
 To achieve our goal, the project will include the following components:
 
-- [x] Package Manager (`pacman`)
+- [x] Package Manager ('pacman')
 - [x] Desktop Environment
 - [x] Code/Text Editor
 - [x] Browser
@@ -51,7 +51,6 @@ To achieve our goal, the project will include the following components:
 ---
 
 ## Baseline Arch Installation Overview
-
 Arch Linux installation is known to be difficult for newcomers. A helpful guide:  
 https://gist.github.com/mjkstra/96ce7a5689d753e7a6bdd92cdc169bae
 
@@ -75,17 +74,65 @@ Our script automates these tedious steps to remove complexity from the Arch expe
 ```
 
 ## How To Install
-1. run: pacman-key --init
-2. run: pacman-key --populate
-3. run: pacman -Sy git
-4. clone Repository: git clone https://github.com/JonathanMarkovic/UnixFinalProject
-5. run: ./installScript.sh
-6. In partition UI create an EFI parition of at least 512M(mb)
-7. In partition UI create a Linux File System for the rest of your disk
-8. In partition UI choose write option then quit
-9. reboot after setup
 
-10. Clone repository again: git clone https://github.com/JonathanMarkovic/UnixFinalProject
-11. run: cd UnixFinalProject
-12. run: install.sh
-13. Choose preffered apps and enjoy
+---
+
+## Baseline Arch Installation Overview
+## How To Install on VirtualBox (Arch Linux)
+
+### Pre-Installation
+
+1. Download the latest [Arch Linux ISO](https://archlinux.org/download/)
+2. Create a new VM in VirtualBox:
+   - Type: Linux  
+   - Version: Arch Linux (64-bit)  
+   - Memory: 2048MB or more  
+   - Storage: Create a virtual disk (e.g., 20GB)  
+3. Mount the ISO and boot the VM
+
+---
+
+### Inside the Arch ISO (Live Environment)
+```bash
+# Set keyboard layout (optional, default is 'us')
+loadkeys us
+
+### Verify UEFI mode
+cat /sys/firmware/efi/fw_platform_size
+
+### Enable Networking
+ping archlinux.org
+
+### Set Up Keys and Install Git
+pacman-key --init
+pacman-key --populate
+pacman -Sy git
+
+### Clone and Run the Setup Script
+git clone https://github.com/JonathanMarkovic/UnixFinalProject
+cd UnixFinalProject
+chmod +x installScript.sh
+./installScript.sh
+
+### Partition the Disk
+Create EFI partition: at least 512MB (type: EFI System)
+Create root partition: rest of the disk (type: Linux File System)
+Write and quit the partition tool
+The script will handle formatting and mounting
+
+### Reboot and Finish Setup
+Reboot the system when prompted
+Boot into the installed Arch system
+
+### Final Setup (After Reboot)
+pacman -Sy git
+git clone https://github.com/JonathanMarkovic/UnixFinalProject
+cd UnixFinalProject
+chmod +x install.sh
+./install.sh
+
+### Select Your Applications
+Choose your preferred applications and desktop environment from the menu system.
+The script will handle all installations and configurations.
+Enjoy your fully-functional Arch Linux desktop!
+
