@@ -55,7 +55,7 @@ checkDependencies
 #checkNetwork
 checkInstallers
 
-PS3="\033[38;2;173;216;230mChoose a browser to install: \033[0m"
+PS3=$'\[\033[38;2;173;216;230m\]Choose a browser to install: \[\033[0m\]'
 browsersChoices=("Firefox" "Chromium" "Brave" "Opera" "Onion Browser" "Information About The Browsers" "Back")
 
 while true; do
