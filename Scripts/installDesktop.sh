@@ -1,28 +1,37 @@
 #!/bin/bash
 
-function checkForYay() {
-    if ! command -v yay &> /dev/null; then
-        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+function checkNetwork() {
+    echo -e "\033[0;36mChecking internet connection...\033[0m"
+    if ! ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
+        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
         exit 1
     fi
 }
 
-checkForYay
-
-function installWithDependencies() {
-    local package=$1
-    local dependencies=$(pactree -u "$package" | tail -n +2 | awk '{print $1}')
-    
-    for dep in $dependencies; do
-        if ! pacman -Qi "$dep" &> /dev/null; then
-            echo -e "\033[38;2;173;216;230mInstalling missing dependency: $dep\033[0m"
-            yay -S --noconfirm "$dep"
-        fi
-    done
-    
-    echo -e "\033[38;2;173;216;230mInstalling $package...\033[0m"
-    yay -S --noconfirm "$package"
+function checkInstallers() {
+    if ! command -v yay &>/dev/null; then
+        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+        exit 1
+    fi
+    if ! command -v pacman &>/dev/null; then
+        echo -e "\033[0;31mPacman not found. Are you on Arch?\033[0m"
+        exit 1
+    fi
 }
+
+function checkStorage() {
+    requiredMB=$1
+    availableKB=$(df / | awk 'NR==2 {print $4}')
+    availableMB=$((availableKB / 1024))
+    if (( availableMB < requiredMB )); then
+        echo -e "\033[0;31mNot enough storage. Required: ${requiredMB}MB, Available: ${availableMB}MB.\033[0m"
+        return 1
+    fi
+    return 0
+}
+
+checkNetwork
+checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose a desktop environment to install: \033[0m"
 desktopEnvironmentChoices=("Sway" "GNOME" "Plasma" "Cinnamon" "Budgie" "Information About The Desktop Environments" "Back")
@@ -31,23 +40,33 @@ while true; do
     select desktopenv in "${desktopEnvironmentChoices[@]}"; do
         case $desktopenv in
             "Sway")
-                installWithDependencies sway
+                if checkStorage 800; then
+                    sudo pacman -S --noconfirm sway
+                fi
                 break
                 ;;
             "GNOME")
-                installWithDependencies gnome
+                if checkStorage 2000; then
+                    sudo pacman -S --noconfirm gnome
+                fi
                 break
                 ;;
             "Plasma")
-                installWithDependencies plasma-meta
+                if checkStorage 2500; then
+                    sudo pacman -S --noconfirm plasma-meta
+                fi
                 break
                 ;;
             "Cinnamon")
-                installWithDependencies cinnamon
+                if checkStorage 1800; then
+                    yay -S --noconfirm cinnamon
+                fi
                 break
                 ;;
             "Budgie")
-                installWithDependencies budgie-desktop
+                if checkStorage 1700; then
+                    yay -S --noconfirm budgie-desktop
+                fi
                 break
                 ;;
             "Information About The Desktop Environments")
