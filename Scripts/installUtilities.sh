@@ -53,7 +53,7 @@ checkDependencies
 #checkNetwork
 checkInstallers
 
-PS3="\033[38;2;173;216;230mChoose a utility to install: \033[0m"
+PS3="Choose a utility to install: "
 utilityChoices=("NetworkManager" "xdg-utils" "fontconfig" "xorg-server" "Install All At Once" "Information About The Utilities" "Back")
 
 while true; do
