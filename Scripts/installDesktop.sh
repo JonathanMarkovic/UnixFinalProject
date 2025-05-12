@@ -20,13 +20,13 @@ function checkDependencies() {
     fi
 }
 
-function checkNetwork() {
+#function checkNetwork() {
 #    echo -e "\033[0;36mChecking internet connection...\033[0m"
 #    if ! ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
 #        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
 #        exit 1
 #    fi
-}
+#}
 
 function checkInstallers() {
     if ! command -v yay &>/dev/null; then
@@ -51,7 +51,7 @@ function checkStorage() {
 }
 
 checkDependencies
-checkNetwork
+#checkNetwork
 checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose a desktop environment to install: \033[0m"
