@@ -49,6 +49,7 @@ function checkStorage() {
     return 0
 }
 
+checkDependencies
 checkNetwork
 checkInstallers
 
