@@ -52,6 +52,7 @@ displayCategories() {
     echo -e "\033[38;2;173;216;230m6. System Utilities    \033[0m"
     echo -e "\033[38;2;173;216;230m7. Task Manager    \033[0m" 
     echo -e "\033[38;2;173;216;230m8. Quit \033[0m"  
+}
 
 mainMenuOption() {
     while true; do
