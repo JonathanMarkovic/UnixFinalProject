@@ -54,7 +54,7 @@ checkDependencies
 #checkNetwork
 checkInstallers
 
-PS3="\033[38;2;173;216;230mChoose a desktop environment to install: \033[0m"
+PS3="Choose a desktop environment to install:"
 desktopEnvironmentChoices=("Sway" "GNOME" "Plasma" "Cinnamon" "Budgie" "Information About The Desktop Environments" "Back")
 
 while true; do
