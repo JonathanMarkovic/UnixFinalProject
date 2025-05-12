@@ -1,5 +1,25 @@
 #!/bin/bash
 
+function checkDependencies() {
+    local missing=()
+    local dependencies=("ping" "df" "awk")
+
+    for dep in "${dependencies[@]}"; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing+=("$dep")
+        fi
+    done
+
+    if (( ${#missing[@]} > 0 )); then
+        echo -e "\033[0;31mMissing required dependencies:\033[0m"
+        for m in "${missing[@]}"; do
+            echo -e " - $m"
+        done
+        echo -e "\n\033[0;31mPlease install the missing tools and try again.\033[0m"
+        exit 1
+    fi
+}
+
 function checkNetwork() {
     echo -e "\033[0;36mChecking internet connection...\033[0m"
     if ! ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
@@ -30,6 +50,7 @@ function checkStorage() {
     return 0
 }
 
+checkDependencies
 checkNetwork
 checkInstallers
 
