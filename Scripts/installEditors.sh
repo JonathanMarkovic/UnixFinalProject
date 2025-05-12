@@ -70,21 +70,13 @@ while true; do
                 ;;
                 "Information About The Text Editors")
                 echo -e "\033[38;2;173;216;230mText Editor Information:\033[0m"
-
-                echo -e "\033[38;2;173;216;230m1. Neovim\033[0m\n"
-                echo -e "Neovim is a highly extensible and customizable text editor that is a fork of vim.\n"
-
-                echo -e "\033[38;2;173;216;230m2. Visual Studio Code\033[0m\n"
-                echo -e "Visual Studio Code is a free, powerful, and lightweight source code editor from Microsoft.\n"
-
-                echo -e "\033[38;2;173;216;230m3. Nano\033[0m\n"
-                echo -e "Nano is a versatile and user-friendly text editor that provides essential editing capabilities.\n"
-
-                echo -e "\033[38;2;173;216;230m4. Sublime Text\033[0m\n"
-                echo -e "Sublime Text is a sophisticated text and source code editor known for its speed, versatility, and ease of use.\n"
-
-                echo -e "\033[38;2;173;216;230m5. Atom\033[0m\n"
-                echo -e "Atom is a free, open-source, cross-platform text editor developed by GitHub.\n"
+                echo
+                echo -e "\033[38;2;173;216;230m1. Neovim\033[0m: A highly extensible and customizable text editor that is a fork of Vim."
+                echo -e "\033[38;2;173;216;230m2. Visual Studio Code\033[0m: A free, powerful, and lightweight source code editor from Microsoft."
+                echo -e "\033[38;2;173;216;230m3. Nano\033[0m: A versatile and user-friendly text editor that provides essential editing capabilities."
+                echo -e "\033[38;2;173;216;230m4. Sublime Text\033[0m: A sophisticated text and source code editor known for its speed, versatility, and ease of use."
+                echo -e "\033[38;2;173;216;230m5. Atom\033[0m: A free, open-source, cross-platform text editor developed by GitHub."
+                echo
                 break
                 ;;
             "Back")
