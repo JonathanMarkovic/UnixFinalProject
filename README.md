@@ -72,67 +72,167 @@ Our script automates these tedious steps to remove complexity from the Arch expe
 ├── README.md            # This file
 └── assets/              # Screenshots or support files
 ```
+---
 
-## How To Install
+## Arch Linux Full Installation Guide (UEFI, Virtual Machine-Friendly)
 
 ---
 
-## Baseline Arch Installation Overview
-## How To Install on VirtualBox (Arch Linux)
+## Step 1: Download the ISO and Set Up the Virtual Machine
+Download the ISO: https://archlinux.org/download
+Download the latest archlinux-x86_64.iso from a mirror near you.
 
-### Pre-Installation
+## Set up VirtualBox:
+Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
 
-1. Download the latest [Arch Linux ISO](https://archlinux.org/download/)
-2. Create a new VM in VirtualBox:
-   - Type: Linux  
-   - Version: Arch Linux (64-bit)  
-   - Memory: 2048MB or more  
-   - Storage: Create a virtual disk (e.g., 20GB)  
-3. Mount the ISO and boot the VM
+## Create a new VM:
+Name: ArchLinux
+Type: Linux
+Version: Arch Linux (64-bit)
+Memory: 2048–4096 MB
+Create a virtual hard disk (VDI, at least 15 GB)
+Go to Settings > System > Motherboard:
+Enable EFI (check “Enable EFI (special OSes only)”)
+Go to Settings > Storage:
+Load the Arch ISO under "Controller: IDE"
+Start the VM
 
 ---
 
-### Inside the Arch ISO (Live Environment)
-```bash
-# Set keyboard layout (optional, default is 'us')
+## Step 2: Boot ISO and Prepare
+Set keyboard layout:
 loadkeys us
 
-### Verify UEFI mode
+## Check UEFI mode:
 cat /sys/firmware/efi/fw_platform_size
 
-### Enable Networking
-ping archlinux.org
+## Test internet connection:
+ping -c 5 archlinux.org
 
-### Set Up Keys and Install Git
-pacman-key --init
-pacman-key --populate
-pacman -Sy git
+## Enable NTP and set timezone:
+timedatectl set-ntp true
+timedatectl set-timezone Canada/Eastern
 
-### Clone and Run the Setup Script
-git clone https://github.com/JonathanMarkovic/UnixFinalProject
-cd UnixFinalProject
-chmod +x installScript.sh
-./installScript.sh
+---
 
-### Partition the Disk
-Create EFI partition: at least 512MB (type: EFI System)
-Create root partition: rest of the disk (type: Linux File System)
-Write and quit the partition tool
-The script will handle formatting and mounting
+## Step 3: Partition the Disk
+List disks:
+lsblk
+Run fdisk on the target disk (e.g., /dev/sda):
+fdisk /dev/sda
+Inside fdisk, type:
+g
+n
+ENTER
+ENTER
++512M
+t
+1
+n
+ENTER
+ENTER
+ENTER
+p
+w
 
-### Reboot and Finish Setup
-Reboot the system when prompted
-Boot into the installed Arch system
+---
 
-### Final Setup (After Reboot)
-pacman -Sy git
-git clone https://github.com/JonathanMarkovic/UnixFinalProject
-cd UnixFinalProject
-chmod +x install.sh
-./install.sh
+## Step 4: Format the Partitions
+mkfs.fat -F 32 /dev/sda1
+mkfs.btrfs /dev/sda2
 
-### Select Your Applications
-Choose your preferred applications and desktop environment from the menu system.
-The script will handle all installations and configurations.
-Enjoy your fully-functional Arch Linux desktop!
+---
 
+## Step 5: Mount and Create Subvolumes
+mount /dev/sda2 /mnt
+
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+
+umount /mnt
+
+mount -o compress=zstd,subvol=@ /dev/sda2 /mnt
+mkdir -p /mnt/home
+mount -o compress=zstd,subvol=@home /dev/sda2 /mnt/home
+
+mkdir -p /mnt/efi
+mount /dev/sda1 /mnt/efi
+
+---
+
+## Step 6: Install Base Packages
+pacstrap /mnt base base-devel linux linux-firmware \
+git btrfs-progs grub efibootmgr grub-btrfs inotify-tools timeshift \
+vim networkmanager pipewire pipewire-alsa pipewire-pulse pipewire-jack \
+wireplumber reflector zsh zsh-completions zsh-autosuggestions \
+openssh man sudo
+
+---
+
+## Step 7: Generate fstab
+genfstab -U /mnt >> /mnt/etc/fstab
+cat /mnt/etc/fstab
+
+---
+
+## Step 8: Enter the New System
+arch-chroot /mnt
+
+---
+
+## Step 9: System Configuration
+Time & Clock:
+ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
+hwclock --systohc
+
+---
+
+Locale:
+nano /etc/locale.gen
+# Uncomment: en_CA.UTF-8
+locale-gen
+
+echo "LANG=en_CA.UTF-8" > /etc/locale.conf
+echo "KEYMAP=us" > /etc/vconsole.conf
+
+Hostname:
+echo "arch" > /etc/hostname
+
+Hosts file:
+cat > /etc/hosts <<EOF
+127.0.0.1 localhost
+::1       localhost
+127.0.1.1 arch
+EOF
+
+### Step 10: Add User and Passwords
+Set root password:
+passwd
+
+Create a new user (replace jon with your preferred username):
+useradd -mG wheel jon
+passwd jon
+
+Enable sudo:
+EDITOR=vim visudo
+# Uncomment: %wheel ALL=(ALL:ALL) ALL
+
+Step 11: Install Bootloader
+grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+
+Step 12: Finalize Installation
+Enable networking:
+systemctl enable NetworkManager
+
+Exit chroot and reboot:
+exit
+umount -R /mnt
+reboot
+
+Step 13: Post-Install
+Login with your new user. To enable NTP time sync (if needed):
+timedatectl set-ntp true
+
+Guide that inspired this installation:
+https://gist.github.com/mjkstra/96ce7a5689d753e7a6bdd92cdc169bae#preliminary-steps
