@@ -14,10 +14,10 @@ pwd
 cd Scripts
 pwd
 
-chmod +x ./installBrowsers.sh
-chmod +x ./installDesktop.sh
-chmod +x ./installEditors.sh
-chmod +x ./installFileManagers.sh
+chmod +x ./Scripts/installBrowsers.sh
+chmod +x ./Scripts/installDesktop.sh
+chmod +x ./Scripts/installEditors.sh
+chmod +x ./Scripts/installFileManagers.sh
 chmod +x ./Scripts/installTerminals.sh
 chmod +x ./Scripts/installUtilities.sh
 chmod +x ./Scripts/UnixProject.sh
