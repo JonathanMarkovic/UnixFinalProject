@@ -74,6 +74,7 @@ while true; do
                 ;;
             "Information About The Browsers")
                 echo -e "\033[38;2;173;216;230mBrowser Information:\033[0m"
+                echo
                 echo -e "\033[38;2;173;216;230m1. Firefox\033[0m\nStable and in the official repo. Installed via pacman.\n"
                 echo -e "\033[38;2;173;216;230m2. Chromium\033[0m\nIn official repos. Installed via pacman.\n"
                 echo -e "\033[38;2;173;216;230m3. Brave\033[0m\nAUR-only. Installed via yay (brave-bin).\n"
