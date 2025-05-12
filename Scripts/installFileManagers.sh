@@ -53,7 +53,7 @@ checkDependencies
 #checkNetwork
 checkInstallers
 
-PS3="\033[38;2;173;216;230mChoose a file manager to install: \033[0m"
+PS3="Choose a file manager to install:"
 fileManagerChoices=("Thunar" "PCManFM" "XFE" "Nemo" "SpaceFM" "Information About The File Managers" "Back")
 
 while true; do
