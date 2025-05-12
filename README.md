@@ -111,28 +111,45 @@ ping -c 5 archlinux.org
 
 ## Enable NTP and set timezone:
 timedatectl set-ntp true
+
 timedatectl set-timezone Canada/Eastern
 
 ---
 
 ## Step 3: Partition the Disk
-List disks:
+## List disks:
 lsblk
+
 Run fdisk on the target disk (e.g., /dev/sda):
+
 fdisk /dev/sda
-Inside fdisk, type:
+
+## Inside fdisk, type:
+
 g
+
 n
+
 ENTER
+
 ENTER
+
 +512M
+
 t
+
 1
+
 n
+
 ENTER
+
 ENTER
+
 ENTER
+
 p
+
 w
 
 ---
@@ -181,13 +198,13 @@ arch-chroot /mnt
 ---
 
 ## Step 9: System Configuration
-Time & Clock:
+## Time & Clock:
 ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
 hwclock --systohc
 
 ---
 
-Locale:
+## Locale:
 nano /etc/locale.gen
 # Uncomment: en_CA.UTF-8
 locale-gen
@@ -195,44 +212,58 @@ locale-gen
 echo "LANG=en_CA.UTF-8" > /etc/locale.conf
 echo "KEYMAP=us" > /etc/vconsole.conf
 
-Hostname:
+## Hostname:
 echo "arch" > /etc/hostname
 
-Hosts file:
+## Hosts file:
 cat > /etc/hosts <<EOF
 127.0.0.1 localhost
 ::1       localhost
 127.0.1.1 arch
 EOF
 
-### Step 10: Add User and Passwords
-Set root password:
+## Step 10: Add User and Passwords
+## Set root password:
 passwd
 
-Create a new user (replace jon with your preferred username):
+---
+
+## Create a new user (replace jon with your preferred username):
 useradd -mG wheel jon
 passwd jon
 
-Enable sudo:
+---
+
+## Enable sudo:
 EDITOR=vim visudo
 # Uncomment: %wheel ALL=(ALL:ALL) ALL
 
-Step 11: Install Bootloader
+---
+
+## Step 11: Install Bootloader
 grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
-Step 12: Finalize Installation
+---
+
+## Step 12: Finalize Installation
 Enable networking:
 systemctl enable NetworkManager
 
-Exit chroot and reboot:
+---
+
+## Exit chroot and reboot:
 exit
 umount -R /mnt
 reboot
 
-Step 13: Post-Install
+---
+
+## Step 13: Post-Install
 Login with your new user. To enable NTP time sync (if needed):
 timedatectl set-ntp true
 
-Guide that inspired this installation:
+---
+
+## Guide that inspired this installation:
 https://gist.github.com/mjkstra/96ce7a5689d753e7a6bdd92cdc169bae#preliminary-steps
