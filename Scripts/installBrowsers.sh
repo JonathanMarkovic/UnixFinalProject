@@ -1,5 +1,24 @@
 #!/bin/bash 
 
+function checkDependencies() {
+    local missing=()
+    local dependencies=("ping" "df" "awk")
+
+    for dep in "${dependencies[@]}"; do
+        if ! command -v "$dep" &>/dev/null; then
+            missing+=("$dep")
+        fi
+    done
+
+    if (( ${#missing[@]} > 0 )); then
+        echo -e "\033[0;31mMissing required dependencies:\033[0m"
+        for m in "${missing[@]}"; do
+            echo -e " - $m"
+        done
+        echo -e "\n\033[0;31mPlease install the missing tools and try again.\033[0m"
+        exit 1
+    fi
+}
 function checkInstallers() {
     if ! command -v yay &>/dev/null; then
         echo -e "\033[0;31m'yay' is required. Please install yay to continue.\033[0m"
@@ -32,6 +51,7 @@ function checkStorage() {
     return 0
 }
 
+checkDependencies
 checkNetwork
 checkInstallers
 
