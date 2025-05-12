@@ -22,5 +22,7 @@ chmod +x ./Scripts/installTerminals.sh
 chmod +x ./Scripts/installUtilities.sh
 chmod +x ./Scripts/UnixProject.sh
 chnod +x ./Scripts/autoTask.sh
+chnod +x ./Scripts/installUtilities.sh
+chnod +x ./Scripts/installTerminals.sh
 
 bash ./UnixProject.sh
