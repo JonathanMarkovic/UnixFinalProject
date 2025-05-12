@@ -30,7 +30,7 @@ function checkInstallers() {
     fi
 }
 
-function checkNetwork() {
+#function checkNetwork() {
 #    echo -e "\033[0;36mChecking internet connection...\033[0m"
 #    if ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
 #        echo -e "\033[0;32mNetwork connection: OK\033[0m"
@@ -38,7 +38,7 @@ function checkNetwork() {
 #        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
 #        exit 1
 #    fi
-}
+#}
 
 function checkStorage() {
     requiredMB=$1
@@ -52,7 +52,7 @@ function checkStorage() {
 }
 
 checkDependencies
-checkNetwork
+#checkNetwork
 checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose a browser to install: \033[0m"
