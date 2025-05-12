@@ -1,13 +1,39 @@
 #!/bin/bash 
 
-function checkForYay() {
-    if ! command -v yay &> /dev/null; then
-        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+function checkInstallers() {
+    if ! command -v yay &>/dev/null; then
+        echo -e "\033[0;31m'yay' is required. Please install yay to continue.\033[0m"
+        exit 1
+    fi
+    if ! command -v pacman &>/dev/null; then
+        echo -e "\033[0;31m'pacman' not found. Are you using Arch? Exiting.\033[0m"
         exit 1
     fi
 }
 
-checkForYay
+function checkNetwork() {
+    echo -e "\033[0;36mChecking internet connection...\033[0m"
+    if ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
+        echo -e "\033[0;32mNetwork connection: OK\033[0m"
+    else
+        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
+        exit 1
+    fi
+}
+
+function checkStorage() {
+    requiredMB=$1
+    availableKB=$(df / | awk 'NR==2 {print $4}')
+    availableMB=$((availableKB / 1024))
+    if (( availableMB < requiredMB )); then
+        echo -e "\033[0;31mNot enough storage. Required: ${requiredMB}MB, Available: ${availableMB}MB.\033[0m"
+        return 1
+    fi
+    return 0
+}
+
+checkNetwork
+checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose a browser to install: \033[0m"
 browsersChoices=("Firefox" "Chromium" "Brave" "Opera" "Onion Browser" "Information About The Browsers" "Back")
@@ -16,44 +42,43 @@ while true; do
     select browser in "${browsersChoices[@]}"; do
         case $browser in
             "Firefox")
-                yay -S --noconfirm firefox
-                yay -S --noconfirm firefox-ublock-origin
+            if checkStorage 500; then
+                    sudo pacman -S --noconfirm firefox
+                    sudo pacman -S --noconfirm firefox-ublock-origin
+                fi
                 break
                 ;;
             "Chromium")
-                yay -S --noconfirm chromium
+                if checkStorage 600; then
+                    sudo pacman -S --noconfirm chromium
+                fi
                 break
                 ;;
             "Brave")
-                yay -S --noconfirm brave-bin
+                if checkStorage 550; then
+                    yay -S --noconfirm opera
+                fi
                 break
                 ;;
             "Opera")
-                yay -S --noconfirm opera
+                if checkStorage 550; then
+                    yay -S --noconfirm opera
+                fi
                 break
                 ;;
             "Onion Browser")
-                yay -S --noconfirm torbrowser-launcher
+                if checkStorage 800; then
+                    yay -S --noconfirm torbrowser-launcher
+                fi
                 break
                 ;;
             "Information About The Browsers")
                 echo -e "\033[38;2;173;216;230mBrowser Information:\033[0m"
-
-                echo -e "\033[38;2;173;216;230m1. Firefox\033[0m\n"
-                echo -e "Firefox is an open-source browser from Mozilla that puts privacy and customization front and center. It blocks trackers and ads by default, and it’s easy to use with tons of extensions. Firefox makes a good choice if you like customizing your browsing experience and care about privacy.\n"
-
-                echo -e "\033[38;2;173;216;230m2. Chromium\033[0m\n"
-                echo -e "Chromium is basically the open-source version of Google Chrome. It’s fast, lightweight, and supports all the same extensions, but it doesn’t come with Google’s features like account syncing or DRM support. Chromium is good if you want something that works like Chrome but with a bit more freedom and less tracking.\n"
-
-                echo -e "\033[38;2;173;216;230m3. Brave\033[0m\n"
-                echo -e "Brave is a browser focused on privacy—it blocks ads and trackers by default, and it even lets you earn cryptocurrency (BAT - Basic Attention Token) by watching privacy-respecting ads. Plus, it has built-in Tor integration for even more anonymity. If you’re all about privacy and want to block ads while still earning rewards, Brave’s a great option. It’s perfect for anyone who wants a browser that respects your data and privacy.\n"
-
-                echo -e "\033[38;2;173;216;230m4. Opera\033[0m\n"
-                echo -e "Opera is a feature-packed browser based on Chromium. It comes with built-in tools like a VPN, an ad blocker, and even social media messengers (like WhatsApp and Facebook Messenger) right in the sidebar. It also has a Turbo mode for slower networks and a battery saver for laptops. If you like having everything in one place and want some extra features like a built-in VPN, Opera’s definitely worth a try. It’s a good choice for anyone who wants a more all-around browser with a lot of convenient tools.\n"
-
-                echo -e "\033[38;2;173;216;230m5. Onion Browser\033[0m\n"
-                echo -e "The Onion Browser is all about remaining anonymous. It routes your internet traffic through the Tor network, keeping your identity and location hidden. It’s the go-to choice if you need extra privacy or plan to visit sketchy sites. Onion is good if staying completely anonymous online is your priority. Just keep in mind it can be slower than other browsers since your traffic is being encrypted and routed through multiple servers.\n"
-
+                echo -e "\033[38;2;173;216;230m1. Firefox\033[0m\nStable and in the official repo. Installed via pacman.\n"
+                echo -e "\033[38;2;173;216;230m2. Chromium\033[0m\nIn official repos. Installed via pacman.\n"
+                echo -e "\033[38;2;173;216;230m3. Brave\033[0m\nAUR-only. Installed via yay (brave-bin).\n"
+                echo -e "\033[38;2;173;216;230m4. Opera\033[0m\nBetter maintained in AUR. Installed via yay.\n"
+                echo -e "\033[38;2;173;216;230m5. Onion Browser\033[0m\nAUR preferred. Installed via yay (torbrowser-launcher).\n"
                 echo
                 break
                 ;;
