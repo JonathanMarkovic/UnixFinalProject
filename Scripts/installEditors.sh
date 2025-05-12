@@ -53,7 +53,7 @@ checkDependencies
 #checkNetwork
 checkInstallers
 
-PS3="\033[38;2;173;216;230mChoose an editor to install: \033[0m"
+PS3="Choose an editor to install: "
 editorChoices=("NeoVim" "Visual Studio Code" "Nano" "Sublime Text" "Atom" "Information About The Text Editors" "Back")
 
 while true; do
