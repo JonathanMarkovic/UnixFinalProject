@@ -53,7 +53,7 @@ checkDependencies
 #checkNetwork
 checkInstallers
 
-PS3="\033[38;2;173;216;230mChoose a terminal emulator to install: \033[0m"
+PS3="Choose a terminal emulator to install: "
 terminalChoices=("Alacritty" "Kitty" "Foot" "URxvt" "Termite" "Information About The Terminal Emulators" "Back")
 
 while true; do
