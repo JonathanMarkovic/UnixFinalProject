@@ -1,13 +1,36 @@
 #!/bin/bash
 
-function checkForYay() {
-    if ! command -v yay &> /dev/null; then
-        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+function checkNetwork() {
+    if ! ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
+        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
         exit 1
     fi
 }
 
-checkForYay
+function checkInstallers() {
+    if ! command -v yay &>/dev/null; then
+        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+        exit 1
+    fi
+    if ! command -v pacman &>/dev/null; then
+        echo -e "\033[0;31mPacman is required but not found. Are you on Arch?\033[0m"
+        exit 1
+    fi
+}
+
+function checkStorage() {
+    requiredMB=$1
+    availableKB=$(df / | awk 'NR==2 {print $4}')
+    availableMB=$((availableKB / 1024))
+    if (( availableMB < requiredMB )); then
+        echo -e "\033[0;31mNot enough storage. Required: ${requiredMB}MB, Available: ${availableMB}MB.\033[0m"
+        return 1
+    fi
+    return 0
+}
+
+checkNetwork
+checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose a file manager to install: \033[0m"
 fileManagerChoices=("Thunar" "PCManFM" "XFE" "Nemo" "SpaceFM" "Information About The File Managers" "Back")
@@ -16,23 +39,33 @@ while true; do
     select fileManager in "${fileManagerChoices[@]}"; do
         case $fileManager in
             "Thunar")
-                yay -S --noconfirm thunar
+                if checkStorage 200; then
+                    yay -S --noconfirm thunar
+                fi
                 break
                 ;;
             "PCManFM")
-                yay -S --noconfirm pcmanfm
+                if checkStorage 150; then
+                    yay -S --noconfirm pcmanfm
+                fi
                 break
                 ;;
             "XFE")
-                yay -S --noconfirm xfe
+                if checkStorage 150; then
+                    yay -S --noconfirm xfe
+                fi
                 break
                 ;;
             "Nemo")
-                yay -S --noconfirm nemo
+                if checkStorage 300; then
+                    yay -S --noconfirm nemo
+                fi
                 break
                 ;;
             "SpaceFM")
-                yay -S --noconfirm spacefm
+                if checkStorage 250; then
+                    yay -S --noconfirm spacefm
+                fi
                 break
                 ;;
             "Information About The File Managers")
