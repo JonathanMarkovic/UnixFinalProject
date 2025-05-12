@@ -25,7 +25,7 @@ function checkNetwork() {
 #        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
 #        exit 1
 #    fi
-#}
+}
 
 function checkInstallers() {
     if ! command -v yay &>/dev/null; then
