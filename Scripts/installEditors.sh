@@ -1,13 +1,36 @@
-#!/bin/bash 
+#!/bin/bash
 
-function checkForYay() {
-    if ! command -v yay &> /dev/null; then
-        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+function checkNetwork() {
+    if ! ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
+        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
         exit 1
     fi
 }
 
-checkForYay
+function checkInstallers() {
+    if ! command -v yay &>/dev/null; then
+        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+        exit 1
+    fi
+    if ! command -v pacman &>/dev/null; then
+        echo -e "\033[0;31mPacman is required but not found. Are you on Arch?\033[0m"
+        exit 1
+    fi
+}
+
+function checkStorage() {
+    requiredMB=$1
+    availableKB=$(df / | awk 'NR==2 {print $4}')
+    availableMB=$((availableKB / 1024))
+    if (( availableMB < requiredMB )); then
+        echo -e "\033[0;31mNot enough storage. Required: ${requiredMB}MB, Available: ${availableMB}MB.\033[0m"
+        return 1
+    fi
+    return 0
+}
+
+checkNetwork
+checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose an editor to install: \033[0m"
 editorChoices=("NeoVim" "Visual Studio Code" "Nano" "Sublime Text" "Atom" "Information About The Text Editors" "Back")
@@ -16,26 +39,36 @@ while true; do
     select editor in "${editorChoices[@]}"; do
         case $editor in
             "NeoVim")
-                sudo pacman -S neovim
+                if checkStorage 200; then
+                    sudo pacman -S --noconfirm neovim
+                fi
                 break
                 ;;
             "Visual Studio Code")
-                yay -S visual-studio-code-bin
+                if checkStorage 400; then
+                    yay -S --noconfirm visual-studio-code-bin
+                fi
                 break
                 ;;
             "Nano")
-                sudo pacman -S nano
+                if checkStorage 50; then
+                    sudo pacman -S --noconfirm nano
+                fi
                 break
                 ;;
             "Sublime Text")
-                yay -S sublime-text-4
+                if checkStorage 350; then
+                    yay -S --noconfirm sublime-text-4
+                fi
                 break
                 ;;
             "Atom")
-                yay -S atom
+                if checkStorage 450; then
+                    yay -S --noconfirm atom
+                fi
                 break
                 ;;
-            "Information About The Text Editors")
+                "Information About The Text Editors")
                 echo -e "\033[38;2;173;216;230mText Editor Information:\033[0m"
 
                 echo -e "\033[38;2;173;216;230m1. Neovim\033[0m\n"
