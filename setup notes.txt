@@ -1,203 +1,143 @@
-https://gist.github.com/mjkstra/96ce7a5689d753e7a6bdd92cdc169bae#preliminary-steps
-used this guide for setup
 
-can use archinstall instead for a simpler stup
+Arch Linux Full Installation Guide (UEFI, Virtual Machine-Friendly)
 
+Step 1: Download the ISO and Set Up the Virtual Machine
+Download the ISO: https://archlinux.org/download
+Download the latest archlinux-x86_64.iso from a mirror near you.
 
-process for installing Arch completely 
+Set up VirtualBox:
+Install VirtualBox: https://www.virtualbox.org/wiki/Downloads
 
-Step 1:
-download the .iso file from a reliable source online
+Create a new VM:
+Name: ArchLinux
+Type: Linux
+Version: Arch Linux (64-bit)
+Memory: 2048–4096 MB
+Create a virtual hard disk (VDI, at least 15 GB)
+Go to Settings > System > Motherboard:
+Enable EFI (check “Enable EFI (special OSes only)”)
+Go to Settings > Storage:
+Load the Arch ISO under "Controller: IDE"
+Start the VM
 
-Couple steps to do before we get into the proper installation part. 
-
-Setting the Keyboard layout/map
-ex: 
-ls /usr/share/kbd/keymaps/**/*.map.gz | less
-
-ex 2:
-localectl list-keymaps
-
-We're gonna use the us layout so we use
+Step 2: Boot ISO and Prepare
+Set keyboard layout:
 loadkeys us
 
-If this command prints 64 or 32 then you are in UEFI
+Check UEFI mode:
 cat /sys/firmware/efi/fw_platform_size
 
-Test for internet connection
-ping -c 5 archlinux.org 
+Test internet connection:
+ping -c 5 archlinux.org
 
-Checking system clock
-timedatectl
-Set to canada eastern time
+Enable NTP and set timezone:
+timedatectl set-ntp true
 timedatectl set-timezone Canada/Eastern
 
-
-Now on to the actual installation
-1) Disk paritioning (This is one of the parts that might be confusing to a beginner user)fdisk
-fdisk -l
-fdisk /dev/(your disk name)
-# Now press the following commands, when i write ENTER press enter
+Step 3: Partition the Disk
+List disks:
+lsblk
+Run fdisk on the target disk (e.g., /dev/sda):
+fdisk /dev/sda
+Inside fdisk, type:
 g
-ENTER
 n
-ENTER
 ENTER
 ENTER
 +512M
-ENTER
 t
-ENTER
-ENTER
 1
-ENTER
 n
 ENTER
 ENTER
-ENTER # If you don't want to use all the space then select the size by writing +XG ( eg: to make a 10GB partition +10G )
+ENTER
 p
-ENTER # Now check if you got the partitions right
-# If so write the changes
 w
-ENTER
 
-# If not you can quit without saving and redo from the beginning
-q
-ENTER
+Step 4: Format the Partitions
+mkfs.fat -F 32 /dev/sda1
+mkfs.btrfs /dev/sda2
 
+Step 5: Mount and Create Subvolumes
+mount /dev/sda2 /mnt
 
-2) Disk Formatting
-# Find the efi partition with fdisk -l or lsblk. Mine is /dev/sda1
-mkfs.fat -F 32 /dev/(your partition)
-
-# Find the root partition. For me it's /dev/sda2 and format it. I will use BTRFS.
-mkfs.btrfs /dev/(your partition)
-
-# Mount the root fs to make it accessible
-mount /dev/(your partition) /mnt
-
-3) Disk Mounting (this might be another complicated section without a guide for beginners)
-# Create the subvolumes, in my case I choose to make a subvolume for / and one for /home. Subvolumes are identified by prepending @
-# NOTICE: the list of subvolumes will be increased in a later release of this guide, upon proper testing and judgement. See the "Things to add" chapter.
 btrfs subvolume create /mnt/@
 btrfs subvolume create /mnt/@home
 
-# Unmount the root fs
 umount /mnt
 
-# Mount the root and home subvolume. If you don't want compression just remove the compress option.
-mount -o compress=zstd,subvol=@ /dev/(your partition) /mnt
+mount -o compress=zstd,subvol=@ /dev/sda2 /mnt
 mkdir -p /mnt/home
-mount -o compress=zstd,subvol=@home /dev/(your partition) /mnt/home
+mount -o compress=zstd,subvol=@home /dev/sda2 /mnt/home
 
 mkdir -p /mnt/efi
-mount /dev/(your partition) /mnt/efi
+mount /dev/sda1 /mnt/efi
 
+Step 6: Install Base Packages
+pacstrap /mnt base base-devel linux linux-firmware \
+git btrfs-progs grub efibootmgr grub-btrfs inotify-tools timeshift \
+vim networkmanager pipewire pipewire-alsa pipewire-pulse pipewire-jack \
+wireplumber reflector zsh zsh-completions zsh-autosuggestions \
+openssh man sudo
 
-4)
-Next is packages installation. This is where we can enable our script to guide the user 
-and ask them what packages they would like installed. 
-# This will install some packages to "bootstrap" methaphorically our system. Feel free to add the ones you want
-# "base, linux, linux-firmware" are needed. If you want a more stable kernel, then swap linux with linux-lts
-# "base-devel" base development packages
-# "git" to install the git vcs
-# "btrfs-progs" are user-space utilities for file system management ( needed to harness the potential of btrfs )
-# "grub" the bootloader
-# "efibootmgr" needed to install grub
-# "grub-btrfs" adds btrfs support for the grub bootloader and enables the user to directly boot from snapshots
-# "inotify-tools" used by grub btrfsd deamon to automatically spot new snapshots and update grub entries
-# "timeshift" a GUI app to easily create,plan and restore snapshots using BTRFS capabilities
-# "amd-ucode" microcode updates for the cpu. If you have an intel one use "intel-ucode"
-# "vim" my goto editor, if unfamiliar use nano
-# "networkmanager" to manage Internet connections both wired and wireless ( it also has an applet package network-manager-applet )
-# "pipewire pipewire-alsa pipewire-pulse pipewire-jack" for the new audio framework replacing pulse and jack. 
-# "wireplumber" the pipewire session manager.
-# "reflector" to manage mirrors for pacman
-# "zsh" my favourite shell
-# "zsh-completions" for zsh additional completions
-# "zsh-autosuggestions" very useful, it helps writing commands [ Needs configuration in .zshrc ]
-# "openssh" to use ssh and manage keys
-# "man" for manual pages
-# "sudo" to run commands as other users
-pacstrap /mnt base base-devel linux linux-firmware git btrfs-progs grub efibootmgr grub-btrfs inotify-tools timeshift vim networkmanager pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber reflector zsh zsh-completions zsh-autosuggestions openssh man sudo
-
-
-5)Fstab
-# Fetch the disk mounting points as they are now ( we mounted everything before ) and generate instructions to let the system know how to mount the various disks automatically
+Step 7: Generate fstab
 genfstab -U /mnt >> /mnt/etc/fstab
-
-# Check if fstab is fine ( it is if you've faithfully followed the previous steps )
 cat /mnt/etc/fstab
 
-6) Context switch to the new system
-# To access our new system we chroot into it
+Step 8: Enter the New System
 arch-chroot /mnt
 
-The Main installation is now complete. Now it is mostly personalization steps(timezone keyboard etc)
-Time Zone again
-# In our new system we have to set up the local time zone, find your one in /usr/share/zoneinfo mine is /usr/share/zoneinfo/Europe/Rome and create a symbolic link to /etc/localtime
+Step 9: System Configuration
+Time & Clock:
 ln -sf /usr/share/zoneinfo/Canada/Eastern /etc/localtime
-
-# Now sync the system time to the hardware clock
 hwclock --systohc
 
-
-Language and keyboard
-Uncomment the proper locale from this file I will uncomment en_CA.UTF-8 UTF-8
+Locale:
 nano /etc/locale.gen
-
-# Now issue the generation of the locales
+# Uncomment: en_CA.UTF-8
 locale-gen
 
-setting up the locale
-touch /etc/locale.conf
-vim /etc/locale.conf
+echo "LANG=en_CA.UTF-8" > /etc/locale.conf
+echo "KEYMAP=us" > /etc/vconsole.conf
 
-write "KEYMAP=us" or instead of us use whatever keymap you prefer
+Hostname:
+echo "arch" > /etc/hostname
 
-Hostname and Host config
-# Create /etc/hostname then choose and write the name of your pc in the first line. In my case I'll use Arch
-touch /etc/hostname
-vim /etc/hostname
-
-# Create the /etc/hosts file. This is very important because it will resolve the listed hostnames locally and not over Internet DNS.
-touch /etc/hosts
-
-write in the hosts file replace Arch with prefered hostname
+Hosts file:
+cat > /etc/hosts <<EOF
 127.0.0.1 localhost
-::1 localhost
-127.0.1.1 Arch
+::1       localhost
+127.0.1.1 arch
+EOF
 
-NExt Step is to Set up Root password
+Step 10: Add User and Passwords
+Set root password:
 passwd
 
-Now add new users(you don't want to be in root if you don't need to be
-# Add a new user, in my case jon
-# -m creates the home dir automatically
-# -G adds the user to an initial list of groups, in this case wheel, the administration group. If you are on a Virtualbox VM and would like to enable shared folders between host and guest machine, then also add the group vboxsf besides wheel.
+Create a new user (replace jon with your preferred username):
 useradd -mG wheel jon
 passwd jon
 
+Enable sudo:
+EDITOR=vim visudo
+# Uncomment: %wheel ALL=(ALL:ALL) ALL
 
-Grub Config
-grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB  
+Step 11: Install Bootloader
+grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB
 grub-mkconfig -o /boot/grub/grub.cfg
 
-
-Unmount everything and reboot
-# Enable newtork manager before rebooting otherwise, you won't be able to connect
+Step 12: Finalize Installation
+Enable networking:
 systemctl enable NetworkManager
 
-# Exit from chroot
+Exit chroot and reboot:
 exit
-
-# Unmount everything to check if the drive is busy
 umount -R /mnt
-
-# Reboot the system and unplug the installation media
 reboot
 
-# Now you'll be presented at the terminal. Log in with your user account, for me its "mjkstra".
-
-# Enable and start the time synchronization service
+Step 13: Post-Install
+Login with your new user. To enable NTP time sync (if needed):
 timedatectl set-ntp true
+
+Guide that inspired this installation:
+https://gist.github.com/mjkstra/96ce7a5689d753e7a6bdd92cdc169bae#preliminary-steps
