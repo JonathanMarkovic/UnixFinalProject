@@ -1,13 +1,36 @@
 #!/bin/bash
 
-function checkForYay() {
-    if ! command -v yay &> /dev/null; then
-        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+function checkNetwork() {
+    if ! ping -q -c 1 -W 2 archlinux.org &>/dev/null; then
+        echo -e "\033[0;31mNo internet connection. Please check your network.\033[0m"
         exit 1
     fi
 }
 
-checkForYay
+function checkInstallers() {
+    if ! command -v yay &>/dev/null; then
+        echo -e "\033[0;31mWe ask that you please install Yay in order to continue.\033[0m"
+        exit 1
+    fi
+    if ! command -v pacman &>/dev/null; then
+        echo -e "\033[0;31mPacman is required but not found. Are you on Arch?\033[0m"
+        exit 1
+    fi
+}
+
+function checkStorage() {
+    requiredMB=$1
+    availableKB=$(df / | awk 'NR==2 {print $4}')
+    availableMB=$((availableKB / 1024))
+    if (( availableMB < requiredMB )); then
+        echo -e "\033[0;31mNot enough storage. Required: ${requiredMB}MB, Available: ${availableMB}MB.\033[0m"
+        return 1
+    fi
+    return 0
+}
+
+checkNetwork
+checkInstallers
 
 PS3="\033[38;2;173;216;230mChoose a utility to install: \033[0m"
 utilityChoices=("NetworkManager" "xdg-utils" "fontconfig" "xorg-server" "Install All At Once" "Information About The Utilities" "Back")
@@ -16,25 +39,35 @@ while true; do
     select utility in "${utilityChoices[@]}"; do
         case $utility in
             "NetworkManager")
-                yay -S --noconfirm networkmanager
-                sudo systemctl enable --now NetworkManager
+                if checkStorage 150; then
+                    sudo pacman -S --noconfirm networkmanager
+                    sudo systemctl enable --now NetworkManager
+                fi
                 break
                 ;;
             "xdg-utils")
-                yay -S --noconfirm xdg-utils
+                if checkStorage 50; then
+                    sudo pacman -S --noconfirm xdg-utils
+                fi
                 break
                 ;;
             "fontconfig")
-                yay -S --noconfirm fontconfig
+                if checkStorage 100; then
+                    sudo pacman -S --noconfirm fontconfig
+                fi
                 break
                 ;;
             "xorg-server")
-                yay -S --noconfirm xorg-server
+                if checkStorage 300; then
+                    sudo pacman -S --noconfirm xorg-server
+                fi
                 break
                 ;;
             "Install All At Once")
-                yay -S --noconfirm networkmanager xdg-utils fontconfig xorg-server
-                sudo systemctl enable --now NetworkManager
+                if checkStorage 600; then
+                    sudo pacman -S --noconfirm networkmanager xdg-utils fontconfig xorg-server
+                    sudo systemctl enable --now NetworkManager
+                fi
                 break
                 ;;
             "Information About The Utilities")
