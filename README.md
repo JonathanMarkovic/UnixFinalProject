@@ -206,7 +206,7 @@ hwclock --systohc
 
 ## Locale:
 nano /etc/locale.gen
-# Uncomment: en_CA.UTF-8
+Uncomment: en_CA.UTF-8
 locale-gen
 
 echo "LANG=en_CA.UTF-8" > /etc/locale.conf
